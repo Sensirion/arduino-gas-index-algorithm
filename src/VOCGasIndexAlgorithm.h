@@ -29,26 +29,14 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SENSIRIONGASINDEXALGORITHM_H
-#define SENSIRIONGASINDEXALGORITHM_H
+#ifndef VOCGASINDEXALGORITHM_H
+#define VOCGASINDEXALGORITHM_H
 
-extern "C" {
-#include "algorithm/sensirion_gas_index_algorithm.h"
-}
+#include "SensirionGasIndexAlgorithm.h"
 
-class SensirionGasIndexAlgorithm {
-
+class VOCGasIndexAlgorithm : public SensirionGasIndexAlgorithm {
   public:
-    explicit SensirionGasIndexAlgorithm(int32_t algorithm_type);
-    int32_t process(int32_t sraw);
-
-    static const int32_t ALGORITHM_TYPE_VOC =
-        GasIndexAlgorithm_ALGORITHM_TYPE_VOC;
-    static const int32_t ALGORITHM_TYPE_NOX =
-        GasIndexAlgorithm_ALGORITHM_TYPE_NOX;
-
-  private:
-    GasIndexAlgorithmParams* params = nullptr;
+    VOCGasIndexAlgorithm() : SensirionGasIndexAlgorithm(ALGORITHM_TYPE_VOC){};
 };
 
-#endif /* SENSIRIONGASINDEXALGORITHM_H */
+#endif /* VOCGASINDEXALGORITHM_H */

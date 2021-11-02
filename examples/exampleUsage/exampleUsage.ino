@@ -34,15 +34,17 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "SensirionGasIndexAlgorithm.h"
 #include <Arduino.h>
+#include <NOxGasIndexAlgorithm.h>
 #include <SensirionI2CSgp41.h>
 #include <SensirionI2CSht4x.h>
+#include <VOCGasIndexAlgorithm.h>
 #include <Wire.h>
 
 SensirionI2CSgp41 sgp41;
 SensirionI2CSht4x sht4x;
-SensirionGasIndexAlgorithm voc_algorithm = SensirionGasIndexAlgorithm(0);
+VOCGasIndexAlgorithm voc_algorithm = VOCGasIndexAlgorithm();
+NOxGasIndexAlgorithm nox_algorithm = NOxGasIndexAlgorithm();
 
 // time in seconds needed for NOx conditioning
 uint16_t conditioning_s = 10;
@@ -56,9 +58,6 @@ void setup() {
 
     Wire.begin();
 
-    uint16_t error;
-    char errorMessage[256];
-
     sgp41.begin(Wire);
     sht4x.begin(Wire);
 }
@@ -70,10 +69,10 @@ void loop() {
     uint16_t srawTempTicks = 0;  // in ticks as defined by SHT4x
     uint16_t srawVoc = 0;
     uint16_t srawNox = 0;
-    uint16_t defaultRh = 0x8000;   // in ticks as defined by SGP41
-    uint16_t defaultT = 0x6666;    // in ticks as defined by SGP41
-    uint16_t compensation_RH = 0;  // in ticks as defined by SGP41
-    uint16_t compensation_T = 0;   // in ticks as defined by SGP41
+    uint16_t defaultCompenstaionRh = 0x8000;  // in ticks as defined by SGP41
+    uint16_t defaultCompenstaionT = 0x6666;   // in ticks as defined by SGP41
+    uint16_t compensation_RH = 0;             // in ticks as defined by SGP41
+    uint16_t compensation_T = 0;              // in ticks as defined by SGP41
 
     delay(1000);
 
@@ -85,16 +84,16 @@ void loop() {
         Serial.println(errorMessage);
         Serial.println("Fallback to use default values for humidity and "
                        "temperature compensation for SGP41");
-        compensation_RH = defaultRh;
-        compensation_T = defaultT;
+        compensation_RH = defaultCompenstaionRh;
+        compensation_T = defaultCompenstaionT;
     } else {
         float temperature =
             static_cast<float>(srawTempTicks * 175.0 / 65535.0 - 45.0);
         float humidity = static_cast<float>(srawRhTicks * 125.0 / 65535.0 - 6);
-        Serial.print("Temperature:");
+        Serial.print("T:");
         Serial.print(temperature);
         Serial.print("\t");
-        Serial.print("Humidity:");
+        Serial.print("RH:");
         Serial.println(humidity);
 
         // convert temperature and humidity from ticks returned by SHT4x to
@@ -106,11 +105,12 @@ void loop() {
 
     if (conditioning_s > 0) {
         // During NOx conditioning (10s) SRAW NOx will remain 0
-        error = sgp41.conditioning(compensation_RH, compensation_T, srawVoc);
+        error =
+            sgp41.executeConditioning(compensation_RH, compensation_T, srawVoc);
         conditioning_s--;
     } else {
-        error =
-            sgp41.measureRaw(compensation_RH, compensation_T, srawVoc, srawNox);
+        error = sgp41.measureRawSignals(compensation_RH, compensation_T,
+                                        srawVoc, srawNox);
     }
 
     if (error) {
@@ -118,13 +118,12 @@ void loop() {
         errorToString(error, errorMessage, 256);
         Serial.println(errorMessage);
     } else {
-        Serial.print("SRAW_VOC:");
-        Serial.print(srawVoc);
-        Serial.print("\t");
-        Serial.print("SRAW_NOx:");
-        Serial.println(srawNox);
         int32_t voc_index = voc_algorithm.process(srawVoc);
-        Serial.print("VOC Index:");
-        Serial.println(voc_index);
+        int32_t nox_index = voc_algorithm.process(srawNox);
+        Serial.print("VOC Index: ");
+        Serial.print(voc_index);
+        Serial.print("\t");
+        Serial.print("NOx Index: ");
+        Serial.println(nox_index);
     }
 }
