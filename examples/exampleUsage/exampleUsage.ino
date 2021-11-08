@@ -60,6 +60,47 @@ void setup() {
 
     sgp41.begin(Wire);
     sht4x.begin(Wire);
+
+    delay(1000);  // needed on some Arduino boards in order to have Serial ready
+
+    int32_t index_offset;
+    int32_t learning_time_offset_hours;
+    int32_t learning_time_gain_hours;
+    int32_t gating_max_duration_minutes;
+    int32_t std_initial;
+    int32_t gain_factor;
+    voc_algorithm.get_tuning_parameters(
+        index_offset, learning_time_offset_hours, learning_time_gain_hours,
+        gating_max_duration_minutes, std_initial, gain_factor);
+
+    Serial.println("\nVOC Index parameters");
+    Serial.print("Index offset:\t");
+    Serial.println(index_offset);
+    Serial.print("Learing time offset hours:\t");
+    Serial.println(learning_time_offset_hours);
+    Serial.print("Learing time gain hours:\t");
+    Serial.println(learning_time_gain_hours);
+    Serial.print("Gating max duration minutes:\t");
+    Serial.println(gating_max_duration_minutes);
+    Serial.print("Std inital:\t");
+    Serial.println(std_initial);
+    Serial.print("Gain factor:\t");
+    Serial.println(gain_factor);
+
+    nox_algorithm.get_tuning_parameters(
+        index_offset, learning_time_offset_hours, learning_time_gain_hours,
+        gating_max_duration_minutes, std_initial, gain_factor);
+
+    Serial.println("\nNOx Index parameters");
+    Serial.print("Index offset:\t");
+    Serial.println(index_offset);
+    Serial.print("Learing time offset hours:\t");
+    Serial.println(learning_time_offset_hours);
+    Serial.print("Gating max duration minutes:\t");
+    Serial.println(gating_max_duration_minutes);
+    Serial.print("Gain factor:\t");
+    Serial.println(gain_factor);
+    Serial.println("");
 }
 
 void loop() {
