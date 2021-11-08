@@ -28,38 +28,16 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
+#include "VOCGasIndexAlgorithm.h"
 
-#ifndef VOCGASINDEXALGORITHM_H
-#define VOCGASINDEXALGORITHM_H
+VOCGasIndexAlgorithm::VOCGasIndexAlgorithm()
+    : SensirionGasIndexAlgorithm(ALGORITHM_TYPE_VOC) {
+}
 
-#include "SensirionGasIndexAlgorithm.h"
+void VOCGasIndexAlgorithm::get_states(int32_t& state0, int32_t& state1) {
+    GasIndexAlgorithm_get_states(params, &state0, &state1);
+}
 
-class VOCGasIndexAlgorithm : public SensirionGasIndexAlgorithm {
-  public:
-    VOCGasIndexAlgorithm();
-
-    /**
-     * Get current algorithm states. Retrieved values can be used in
-     * set_states() to resume operation after a short
-     * interruption, skipping initial learning phase.
-     * NOTE: This feature can only be used after at least 3 hours of continuous
-     * operation.
-     * @param state0    State0 to be stored (output variable)
-     * @param state1    State1 to be stored (output variable)
-     */
-    void get_states(int32_t& state0, int32_t& state1);
-
-    /**
-     * Set previously retrieved algorithm states to resume operation after a
-     * short interruption, skipping initial learning phase. This feature should
-     * not be used after interruptions of more than 10 minutes. Call this once
-     * after creating a new instance of GasIndexAlgorithm or calling reset() and
-     * the optional set_tuning_parameters(), if desired. Otherwise, the
-     * algorithm will start with initial learning phase.
-     * @param state0    State0 to be restored
-     * @param state1    State1 to be restored
-     */
-    void set_states(int32_t state0, int32_t state1);
-};
-
-#endif /* VOCGASINDEXALGORITHM_H */
+void VOCGasIndexAlgorithm::set_states(int32_t state0, int32_t state1) {
+    GasIndexAlgorithm_set_states(params, state0, state1);
+}

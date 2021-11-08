@@ -36,6 +36,34 @@ SensirionGasIndexAlgorithm::SensirionGasIndexAlgorithm(int32_t algorithm_type) {
     GasIndexAlgorithm_init(params, algorithm_type);
 }
 
+SensirionGasIndexAlgorithm::~SensirionGasIndexAlgorithm() {
+    free(params);
+}
+
+void SensirionGasIndexAlgorithm::set_tuning_parameters(
+    int32_t index_offset, int32_t learning_time_offset_hours,
+    int32_t learning_time_gain_hours, int32_t gating_max_duration_minutes,
+    int32_t std_initial, int32_t gain_factor) {
+    GasIndexAlgorithm_set_tuning_parameters(
+        params, index_offset, learning_time_offset_hours,
+        learning_time_gain_hours, gating_max_duration_minutes, std_initial,
+        gain_factor);
+}
+
+void SensirionGasIndexAlgorithm::get_tuning_parameters(
+    int32_t& index_offset, int32_t& learning_time_offset_hours,
+    int32_t& learning_time_gain_hours, int32_t& gating_max_duration_minutes,
+    int32_t& std_initial, int32_t& gain_factor) {
+    GasIndexAlgorithm_get_tuning_parameters(
+        params, &index_offset, &learning_time_offset_hours,
+        &learning_time_gain_hours, &gating_max_duration_minutes, &std_initial,
+        &gain_factor);
+}
+
+void SensirionGasIndexAlgorithm::reset() {
+    GasIndexAlgorithm_reset(params);
+}
+
 int32_t SensirionGasIndexAlgorithm::process(int32_t sraw) {
     int32_t index_value = 0;
     GasIndexAlgorithm_process(params, sraw, &index_value);
