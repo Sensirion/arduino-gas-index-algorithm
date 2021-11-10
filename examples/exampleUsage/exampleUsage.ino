@@ -1,9 +1,4 @@
 /*
- * I2C-Generator: 0.2.0
- * Yaml Version: 0.1.0
- * Template Version: local build
- */
-/*
  * Copyright (c) 2021, Sensirion AG
  * All rights reserved.
  *
@@ -34,15 +29,17 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <Wire.h>
+
 #include <Arduino.h>
 #include <NOxGasIndexAlgorithm.h>
 #include <SensirionI2CSgp41.h>
 #include <SensirionI2CSht4x.h>
 #include <VOCGasIndexAlgorithm.h>
-#include <Wire.h>
 
-SensirionI2CSgp41 sgp41;
 SensirionI2CSht4x sht4x;
+SensirionI2CSgp41 sgp41;
+
 VOCGasIndexAlgorithm voc_algorithm = VOCGasIndexAlgorithm();
 NOxGasIndexAlgorithm nox_algorithm = NOxGasIndexAlgorithm();
 
@@ -50,7 +47,6 @@ NOxGasIndexAlgorithm nox_algorithm = NOxGasIndexAlgorithm();
 uint16_t conditioning_s = 10;
 
 void setup() {
-
     Serial.begin(115200);
     while (!Serial) {
         delay(100);
@@ -58,8 +54,49 @@ void setup() {
 
     Wire.begin();
 
-    sgp41.begin(Wire);
     sht4x.begin(Wire);
+    sgp41.begin(Wire);
+
+    delay(1000);  // needed on some Arduino boards in order to have Serial ready
+
+    int32_t index_offset;
+    int32_t learning_time_offset_hours;
+    int32_t learning_time_gain_hours;
+    int32_t gating_max_duration_minutes;
+    int32_t std_initial;
+    int32_t gain_factor;
+    voc_algorithm.get_tuning_parameters(
+        index_offset, learning_time_offset_hours, learning_time_gain_hours,
+        gating_max_duration_minutes, std_initial, gain_factor);
+
+    Serial.println("\nVOC Gas Index Algorithm parameters");
+    Serial.print("Index offset:\t");
+    Serial.println(index_offset);
+    Serial.print("Learing time offset hours:\t");
+    Serial.println(learning_time_offset_hours);
+    Serial.print("Learing time gain hours:\t");
+    Serial.println(learning_time_gain_hours);
+    Serial.print("Gating max duration minutes:\t");
+    Serial.println(gating_max_duration_minutes);
+    Serial.print("Std inital:\t");
+    Serial.println(std_initial);
+    Serial.print("Gain factor:\t");
+    Serial.println(gain_factor);
+
+    nox_algorithm.get_tuning_parameters(
+        index_offset, learning_time_offset_hours, learning_time_gain_hours,
+        gating_max_duration_minutes, std_initial, gain_factor);
+
+    Serial.println("\nNOx Gas Index Algorithm parameters");
+    Serial.print("Index offset:\t");
+    Serial.println(index_offset);
+    Serial.print("Learing time offset hours:\t");
+    Serial.println(learning_time_offset_hours);
+    Serial.print("Gating max duration minutes:\t");
+    Serial.println(gating_max_duration_minutes);
+    Serial.print("Gain factor:\t");
+    Serial.println(gain_factor);
+    Serial.println("");
 }
 
 void loop() {
@@ -74,8 +111,12 @@ void loop() {
     uint16_t compensation_RH = 0;             // in ticks as defined by SGP41
     uint16_t compensation_T = 0;              // in ticks as defined by SGP41
 
+    // 1. Sleep: Measure every second (1Hz), as defined by the Gas Index
+    // Algorithm
+    //    prerequisite
     delay(1000);
 
+    // 2. Measure humidity and temperature for SGP internal compensation
     error = sht4x.measureHighPrecisionTicks(srawTempTicks, srawRhTicks);
     if (error) {
         Serial.print(
@@ -97,12 +138,13 @@ void loop() {
         Serial.println(humidity);
 
         // convert temperature and humidity from ticks returned by SHT4x to
-        // ticks as defined by SGP41 interface temperature ticks are identical
-        // on SHT4x and SGP41
+        // ticks as defined by SGP41 interface (temperature ticks are identical
+        // on SHT4x and SGP41)
         compensation_T = srawTempTicks;
         compensation_RH = (srawRhTicks * 125 / 65535 - 6) * 65535 / 100;
     }
 
+    // 3. Measure SGP4x signals
     if (conditioning_s > 0) {
         // During NOx conditioning (10s) SRAW NOx will remain 0
         error =
@@ -113,6 +155,9 @@ void loop() {
                                         srawVoc, srawNox);
     }
 
+    // 4. Process raw signals by Gas Index Algorithm to get the VOC and NOx
+    // index
+    //    values
     if (error) {
         Serial.print("SGP41 - Error trying to execute measureRaw(): ");
         errorToString(error, errorMessage, 256);

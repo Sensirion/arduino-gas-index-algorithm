@@ -1,7 +1,14 @@
 # Sensirion Gas Index Algorithm Arduino Library
 
-This is the Sensirion Gas Index Algorithm library for Arduino.
+SGP4x VOC/NOx Engine Algorithm applies a gain-offset normalization algorithm to a SGP tick signal. The algorithm 
+assumes a humidity compensated raw tick signal, applies state estimation, tick-to-GasIndex conversion and an 
+adaptive lowpass filter.
 
+The main goal of the VOC/NOX Engine algorithm is to calculate a VOC/NOx Index signal that enables robust detection of ambient
+VOC/NOx changes, with minimal sensor-to-sensor variations. The Algorithm Engine calculates the VOC/NOx Index signal 
+recursively from a single raw tick value Sout that is measured by the SGP sensor at each time step, as well as internal 
+states that are updated at each time step. These internal states are most importantly the recursively estimated mean and 
+variance of the Sout signal, as well as some additional internal states such as uptime and other counters.
 
 # Installation
 
@@ -10,10 +17,6 @@ To install, download the latest release as .zip file and add it to your
 
 	Sketch => Include Library => Add .ZIP Library...
 
-Don't forget to **install the dependencies** listed below (if you want to run the example) the same way via `Add .ZIP Library`
-
-Note: Installation via the Arduino Library Manager is coming soon.
-
 # Dependencies
 
 The dependency to the Sensirion I2C drivers are only needed to run the example, which runs with a SGP41 and a SHT4x sensor.
@@ -21,20 +24,24 @@ The dependency to the Sensirion I2C drivers are only needed to run the example, 
 * [Sensirion I2C SGP41](https://github.com/Sensirion/arduino-i2c-sgp41)
 * [Sensirion I2C SHT4x](https://github.com/Sensirion/arduino-i2c-sht4x)
 
-# Quick Start to run the example
 
-1. Connect a SGP41 and SHT4x Sensor over I2C to your Arduino
+## Quick Start to run the example
+
+1. **Install the driver dependencies** listed above the same way as you installed this library (via `Add .ZIP Library`)
 
 
-2. Open the `exampleUsage` sample project within the Arduino IDE
+2. Connect a SGP41 and SHT4x Sensor over I2C to your Arduino
+
+
+3. Open the `exampleUsage` sample project within the Arduino IDE
 
         File => Examples => Sensirion Gas Index Algorithm => exampleUsage
 
-3. Click the `Upload` button in the Arduino IDE or
+4. Click the `Upload` button in the Arduino IDE or
 
         Sketch => Upload
 
-4. When the upload process has finished, open the `Serial Monitor` or `Serial
+5. When the upload process has finished, open the `Serial Monitor` or `Serial
    Plotter` via the `Tools` menu to observe the measurement values and calculated 
    Gas Index value. Note that the `Baud Rate` in the corresponding window has to be set to `115200 baud`.
 

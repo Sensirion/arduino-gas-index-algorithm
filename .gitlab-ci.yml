@@ -10,6 +10,7 @@ compile_test:
     before_script:
         - rm -rf ../sensirion-i2c-sht4x-library
         - rm -rf ../sensirion-i2c-sgp41-library
+        - rm -rf ../sensirion-core-arduino-library
     script:
         - git clone --depth 1 --branch 0.5.1 https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.sensirion.lokal/MSO-SW/drivers/arduino/arduino-core.git ../sensirion-core-arduino-library
         - git clone --depth 1 --branch 0.1.0 https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.sensirion.lokal/MSO-SW/drivers/arduino/arduino-i2c-sht4x.git ../sensirion-i2c-sht4x-library

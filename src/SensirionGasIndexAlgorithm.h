@@ -40,14 +40,72 @@ class SensirionGasIndexAlgorithm {
 
   public:
     explicit SensirionGasIndexAlgorithm(int32_t algorithm_type);
+    ~SensirionGasIndexAlgorithm();
+
+    /**
+     * Set parameters to customize the gas index algorithm. Call this once after
+     * creating a new instance of GasIndexAlgorithm if desired.
+     * Otherwise, the default values will be used.
+     *
+     * @param index_offset                Gas index representing typical
+     * (average) conditions. Range 1..250, default 100 for VOC and 1 for NOx
+     * @param learning_time_offset_hours  Time constant of long-term estimator
+     * for offset. Past events will be forgotten after about twice the learning
+     * time. Range 1..1000 [hours], default 12 [hours]
+     * @param learning_time_gain_hours    Time constant of long-term estimator
+     * for gain. Past events will be forgotten after about twice the learning
+     * time. Range 1..1000 [hours], default 12 [hours] NOTE: This value is not
+     * relevant for NOx algorithm type
+     * @param gating_max_duration_minutes Maximum duration of gating (freeze of
+     *                                    estimator during high gas index
+     * signal). 0 (no gating) or range 1..3000 [minutes], default 180 [minutes]
+     * for VOC and 720 [minutes] for NOx
+     * @param std_initial                 Initial estimate for standard
+     * deviation. Lower value boosts events during initial learning period, but
+     * may result in larger device-to-device variations. Range 10..5000, default
+     * 50 NOTE: This value is not relevant for NOx algorithm type
+     * @param gain_factor                 Factor used to scale applied gain
+     * value when calculating gas index. Range 1..1000, default 230
+     */
+    void set_tuning_parameters(int32_t index_offset,
+                               int32_t learning_time_offset_hours,
+                               int32_t learning_time_gain_hours,
+                               int32_t gating_max_duration_minutes,
+                               int32_t std_initial, int32_t gain_factor);
+
+    /**
+     * Get current parameters to customize the gas index algorithm.
+     * Refer to set_tuning_parameters() for description of the
+     * parameters.
+     */
+    void get_tuning_parameters(int32_t& index_offset,
+                               int32_t& learning_time_offset_hours,
+                               int32_t& learning_time_gain_hours,
+                               int32_t& gating_max_duration_minutes,
+                               int32_t& std_initial, int32_t& gain_factor);
+
+    /**
+     * Calculate the gas index value from the raw sensor value.
+     *
+     * @param sraw        Raw value from the SGP4x sensor
+     * @return            Calculated gas index value from the raw sensor value.
+     * Zero during initial blackout period and 1..500 afterwards
+     */
     int32_t process(int32_t sraw);
+
+    /**
+     * Reset the internal states of the gas index algorithm. Previously set
+     * tuning parameters are preserved. Call this when resuming operation after
+     * a measurement interruption.
+     */
+    void reset();
 
     static const int32_t ALGORITHM_TYPE_VOC =
         GasIndexAlgorithm_ALGORITHM_TYPE_VOC;
     static const int32_t ALGORITHM_TYPE_NOX =
         GasIndexAlgorithm_ALGORITHM_TYPE_NOX;
 
-  private:
+  protected:
     GasIndexAlgorithmParams* params = nullptr;
 };
 
