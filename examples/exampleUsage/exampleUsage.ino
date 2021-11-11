@@ -102,22 +102,22 @@ void setup() {
 void loop() {
     uint16_t error;
     char errorMessage[256];
-    uint16_t srawRhTicks = 0;    // in ticks as defined by SHT4x
-    uint16_t srawTempTicks = 0;  // in ticks as defined by SHT4x
+    float humidity = 0;     // %RH
+    float temperature = 0;  // degreeC
     uint16_t srawVoc = 0;
     uint16_t srawNox = 0;
     uint16_t defaultCompenstaionRh = 0x8000;  // in ticks as defined by SGP41
     uint16_t defaultCompenstaionT = 0x6666;   // in ticks as defined by SGP41
-    uint16_t compensation_RH = 0;             // in ticks as defined by SGP41
-    uint16_t compensation_T = 0;              // in ticks as defined by SGP41
+    uint16_t compensationRh = 0;              // in ticks as defined by SGP41
+    uint16_t compensationT = 0;               // in ticks as defined by SGP41
 
     // 1. Sleep: Measure every second (1Hz), as defined by the Gas Index
     // Algorithm
     //    prerequisite
     delay(1000);
 
-    // 2. Measure humidity and temperature for SGP internal compensation
-    error = sht4x.measureHighPrecisionTicks(srawTempTicks, srawRhTicks);
+    // 2. Measure temperature and humidity for SGP internal compensation
+    error = sht4x.measureHighPrecision(temperature, humidity);
     if (error) {
         Serial.print(
             "SHT4x - Error trying to execute measureHighPrecision(): ");
@@ -125,41 +125,40 @@ void loop() {
         Serial.println(errorMessage);
         Serial.println("Fallback to use default values for humidity and "
                        "temperature compensation for SGP41");
-        compensation_RH = defaultCompenstaionRh;
-        compensation_T = defaultCompenstaionT;
+        compensationRh = defaultCompenstaionRh;
+        compensationT = defaultCompenstaionT;
     } else {
-        float temperature =
-            static_cast<float>(srawTempTicks * 175.0 / 65535.0 - 45.0);
-        float humidity = static_cast<float>(srawRhTicks * 125.0 / 65535.0 - 6);
         Serial.print("T:");
         Serial.print(temperature);
         Serial.print("\t");
         Serial.print("RH:");
         Serial.println(humidity);
 
-        // convert temperature and humidity from ticks returned by SHT4x to
-        // ticks as defined by SGP41 interface (temperature ticks are identical
-        // on SHT4x and SGP41)
-        compensation_T = srawTempTicks;
-        compensation_RH = (srawRhTicks * 125 / 65535 - 6) * 65535 / 100;
+        // convert temperature and humidity to ticks as defined by SGP41
+        // interface
+        // NOTE: in case you read RH and T raw signals check out the
+        // ticks specification in the datasheet, as they can be different for
+        // different sensors
+        compensationT = static_cast<uint16_t>((temperature + 45) * 65535 / 175);
+        compensationRh = static_cast<uint16_t>(humidity * 65535 / 100);
     }
 
     // 3. Measure SGP4x signals
     if (conditioning_s > 0) {
         // During NOx conditioning (10s) SRAW NOx will remain 0
         error =
-            sgp41.executeConditioning(compensation_RH, compensation_T, srawVoc);
+            sgp41.executeConditioning(compensationRh, compensationT, srawVoc);
         conditioning_s--;
     } else {
-        error = sgp41.measureRawSignals(compensation_RH, compensation_T,
-                                        srawVoc, srawNox);
+        error = sgp41.measureRawSignals(compensationRh, compensationT, srawVoc,
+                                        srawNox);
     }
 
     // 4. Process raw signals by Gas Index Algorithm to get the VOC and NOx
     // index
     //    values
     if (error) {
-        Serial.print("SGP41 - Error trying to execute measureRaw(): ");
+        Serial.print("SGP41 - Error trying to execute measureRawSignals(): ");
         errorToString(error, errorMessage, 256);
         Serial.println(errorMessage);
     } else {
