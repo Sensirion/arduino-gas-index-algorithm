@@ -19,13 +19,18 @@ To install, download the latest release as .zip file and add it to your
 
 # Dependencies
 
-The dependency to the Sensirion I2C drivers are only needed to run the example, which runs with a SGP41 and a SHT4x sensor.
+The dependency to the Sensirion I2C drivers are only needed to run the example, which uses a SGP41 and a SHT4x sensor.
 
 * [Sensirion I2C SGP41](https://github.com/Sensirion/arduino-i2c-sgp41)
 * [Sensirion I2C SHT4x](https://github.com/Sensirion/arduino-i2c-sht4x)
 
 
 ## Quick Start to run the example
+
+The example measures VOC and NOx ticks with a SGP41 sensor using a SHT4x to compensate temperature and humidity.
+The raw VOC and NOx measurement signals are then processed with the gas index algorithm to get VOC Index and NOx Index values.
+
+For more details about the sensors and breakout boards check out http://sensirion.com/my-sgp-ek/.
 
 1. **Install the driver dependencies** listed above the same way as you installed this library (via `Add .ZIP Library`)
 
