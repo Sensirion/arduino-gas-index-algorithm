@@ -163,7 +163,7 @@ void loop() {
         Serial.println(errorMessage);
     } else {
         int32_t voc_index = voc_algorithm.process(srawVoc);
-        int32_t nox_index = voc_algorithm.process(srawNox);
+        int32_t nox_index = nox_algorithm.process(srawNox);
         Serial.print("VOC Index: ");
         Serial.print(voc_index);
         Serial.print("\t");
