@@ -7,9 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [3.1.0] - DATE TBD
+## [3.1.0] - 2021-11-18
 
 Initial release. Gas Index Algorithm version 3.1.0
 
-[3.1.0]: URL TBD - POINT TO GITHUB TAG FOR THIS VERSION
+[3.1.0]: https://github.com/Sensirion/arduino-gas-index-algorithm/releases/tag/3.1.0
 
