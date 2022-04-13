@@ -5,7 +5,7 @@ stages:
 compile_test:
     stage: test
     image:
-        name: registry.gitlab.sensirion.lokal/sensirion/docker/docker-arduino:0.4.0
+        name: registry.gitlab.sensirion.lokal/sensirion/docker/docker-arduino:0.5.0
     tags: [docker, linux]
     before_script:
         - rm -rf ../sensirion-i2c-sht4x-library
@@ -25,7 +25,7 @@ compile_test:
 syntax_check:
   stage: validate
   image:
-      name: registry.gitlab.sensirion.lokal/mso-sw/drivers/docker-driver-generator:0.1.0
+      name: registry.gitlab.sensirion.lokal/mso-sw/drivers/docker-driver-generator:0.2.0
   tags: [linux, docker]
   script:
     - find . -type f -iregex ".*\.\(c\|h\|cpp\|ino\)" -exec clang-format-6.0 -i -style=file {} \; && git diff --exit-code
@@ -34,7 +34,7 @@ syntax_check:
 cppcheck:
   stage: validate
   image:
-      name: registry.gitlab.sensirion.lokal/mso-sw/drivers/docker-driver-generator:0.1.0
+      name: registry.gitlab.sensirion.lokal/mso-sw/drivers/docker-driver-generator:0.2.0
   tags: [linux, docker]
   script:
     - cppcheck --std=c++11 --language=c++ --error-exitcode=1 --suppress=*:src/algorithm/* -isrc/algorithm/sensirion_gas_index_algorithm.c --enable=warning,style,performance,portability src/*
