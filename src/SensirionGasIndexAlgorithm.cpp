@@ -32,12 +32,12 @@
 #include <stdlib.h>
 
 SensirionGasIndexAlgorithm::SensirionGasIndexAlgorithm(int32_t algorithm_type) {
-    params = (GasIndexAlgorithmParams*)malloc(sizeof(GasIndexAlgorithmParams));
+    params = new GasIndexAlgorithmParams();
     GasIndexAlgorithm_init(params, algorithm_type);
 }
 
 SensirionGasIndexAlgorithm::~SensirionGasIndexAlgorithm() {
-    free(params);
+    delete params;
 }
 
 void SensirionGasIndexAlgorithm::set_tuning_parameters(
@@ -58,6 +58,17 @@ void SensirionGasIndexAlgorithm::get_tuning_parameters(
         params, &index_offset, &learning_time_offset_hours,
         &learning_time_gain_hours, &gating_max_duration_minutes, &std_initial,
         &gain_factor);
+}
+
+void SensirionGasIndexAlgorithm::set_sampling_interval(
+    float sampling_interval) {
+    GasIndexAlgorithm_set_sampling_interval(params, sampling_interval);
+}
+
+float SensirionGasIndexAlgorithm::get_sampling_interval() {
+    float sampling_interval = 0.0;
+    GasIndexAlgorithm_get_sampling_interval(params, &sampling_interval);
+    return sampling_interval;
 }
 
 void SensirionGasIndexAlgorithm::reset() {
