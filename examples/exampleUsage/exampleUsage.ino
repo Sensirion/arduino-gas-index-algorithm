@@ -40,8 +40,8 @@
 SensirionI2CSht4x sht4x;
 SensirionI2CSgp41 sgp41;
 
-VOCGasIndexAlgorithm voc_algorithm = VOCGasIndexAlgorithm();
-NOxGasIndexAlgorithm nox_algorithm = NOxGasIndexAlgorithm();
+VOCGasIndexAlgorithm voc_algorithm;
+NOxGasIndexAlgorithm nox_algorithm;
 
 // time in seconds needed for NOx conditioning
 uint16_t conditioning_s = 10;

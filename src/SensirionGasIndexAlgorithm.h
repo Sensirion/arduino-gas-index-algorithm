@@ -39,6 +39,10 @@ extern "C" {
 class SensirionGasIndexAlgorithm {
 
   public:
+    SensirionGasIndexAlgorithm(const SensirionGasIndexAlgorithm&) = delete;
+    SensirionGasIndexAlgorithm&
+    operator=(const SensirionGasIndexAlgorithm&) = delete;
+
     explicit SensirionGasIndexAlgorithm(int32_t algorithm_type);
     ~SensirionGasIndexAlgorithm();
 
@@ -83,6 +87,20 @@ class SensirionGasIndexAlgorithm {
                                int32_t& learning_time_gain_hours,
                                int32_t& gating_max_duration_minutes,
                                int32_t& std_initial, int32_t& gain_factor);
+
+    /**
+     * Set the sampling interval.
+     * Relevant when operating in low power mode and the sampling interval
+     * differs from the default value (1 second)
+     *
+     * @param sampling_interval           Sampling interval in seconds.
+     */
+    void set_sampling_interval(float sampling_interval);
+
+    /**
+     * Get the sampling interval used by the algorithm
+     */
+    float get_sampling_interval();
 
     /**
      * Calculate the gas index value from the raw sensor value.
