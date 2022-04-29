@@ -46,6 +46,8 @@ NOxGasIndexAlgorithm nox_algorithm;
 // time in seconds needed for NOx conditioning
 uint16_t conditioning_s = 10;
 
+char errorMessage[64];
+
 void setup() {
     Serial.begin(115200);
     while (!Serial) {
@@ -101,7 +103,6 @@ void setup() {
 
 void loop() {
     uint16_t error;
-    char errorMessage[256];
     float humidity = 0;     // %RH
     float temperature = 0;  // degreeC
     uint16_t srawVoc = 0;
