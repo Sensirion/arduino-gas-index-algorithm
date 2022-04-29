@@ -32,6 +32,7 @@ To install, download the latest release as .zip file and add it to your
 The dependency to the Sensirion I2C drivers are only needed to run the example, which uses a SGP41 and a SHT4x sensor.
 
 * [Sensirion I2C SGP41](https://github.com/Sensirion/arduino-i2c-sgp41)
+* [Sensirion I2C SGP40](https://github.com/Sensirion/arduino-i2c-sgp40)
 * [Sensirion I2C SHT4x](https://github.com/Sensirion/arduino-i2c-sht4x)
 
 
@@ -59,6 +60,20 @@ For more details about the sensors and breakout boards check out http://sensirio
 5. When the upload process has finished, open the `Serial Monitor` or `Serial
    Plotter` via the `Tools` menu to observe the measurement values and calculated 
    Gas Index value. Note that the `Baud Rate` in the corresponding window has to be set to `115200 baud`.
+
+
+### Low power example (SGP40)
+The provided low power example demonstrate how to run the sgp40 sensor in low power mode and apply the VOC index algorithm to the acquired data. Reduced power consumption is achieved by turning off the heater after each measurement. The heater is then turned back on by calling for a first ignored measurement that preceeds the actual measurement call by 170ms.
+
+The following two low power modes have been internally tested:
+Duty cycle | Sampling interval | Average  power  consumption at 1.8V
+ --- | --- | --- 
+Continuous | 1 s | 6.3mW
+20%| 1 s | <2.0mW
+2%| 10 s | <0.2mW
+
+
+
 
 # Contributing
 

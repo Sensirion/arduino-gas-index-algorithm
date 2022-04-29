@@ -40,7 +40,8 @@ SensirionI2CSht4x sht4x;
 SensirionI2CSgp40 sgp40;
 
 VOCGasIndexAlgorithm voc_algorithm;
-// define the sampling interval in seconds (1sec for 20% power, 10sec for 2% power)
+// define the sampling interval in seconds (1sec for 20% power, 10sec for 2%
+// power)
 float sampling_interval = 1.0;
 
 char errorMessage[64];
@@ -67,7 +68,7 @@ void setup() {
     voc_algorithm.get_tuning_parameters(
         index_offset, learning_time_offset_hours, learning_time_gain_hours,
         gating_max_duration_minutes, std_initial, gain_factor);
-    
+
     voc_algorithm.set_sampling_interval(sampling_interval);
 
     Serial.println("\nVOC Gas Index Algorithm parameters");
@@ -88,12 +89,13 @@ void setup() {
     Serial.println("");
 }
 
-void sgp40MeasureRawSignalLowPower(uint16_t compensationRh, uint16_t compensationT, uint16_t error){
+void sgp40MeasureRawSignalLowPower(uint16_t compensationRh,
+                                   uint16_t compensationT, uint16_t error) {
     uint16_t srawVoc = 0;
     // Request a first measurement to heat up the plate (ignoring the result)
     error = sgp40.measureRawSignal(compensationRh, compensationT, srawVoc);
-    if (error){
-      return;
+    if (error) {
+        return;
     }
 
     // Delaying 170 msec to let the plate heat up.
@@ -102,18 +104,18 @@ void sgp40MeasureRawSignalLowPower(uint16_t compensationRh, uint16_t compensatio
 
     // Request the measurement values
     error = sgp40.measureRawSignal(compensationRh, compensationT, srawVoc);
-    if (error){
-      return;
+    if (error) {
+        return;
     }
 
     Serial.print("\t");
     Serial.print("srawVOC: ");
     Serial.println(srawVoc);
-                                    
+
     // Turn heater off
     error = sgp40.turnHeaterOff();
-    if (error){
-      return;
+    if (error) {
+        return;
     }
 
     // Process raw signals by Gas Index Algorithm to get the VOC index values
@@ -121,13 +123,13 @@ void sgp40MeasureRawSignalLowPower(uint16_t compensationRh, uint16_t compensatio
     Serial.print("\t");
     Serial.print("VOC Index: ");
     Serial.println(voc_index);
-//    
+    //
 }
 
 void loop() {
     uint16_t error;
-    float humidity = 0;     // %RH
-    float temperature = 0;  // degreeC
+    float humidity = 0;                       // %RH
+    float temperature = 0;                    // degreeC
     uint16_t defaultCompensationRh = 0x8000;  // in ticks as defined by SGP41
     uint16_t defaultCompensationT = 0x6666;   // in ticks as defined by SGP41
     uint16_t compensationRh = 0;              // in ticks as defined by SGP41
@@ -136,7 +138,7 @@ void loop() {
     // 1. Sleep: We need the delay to match the desired sampling interval
     // In low power mode, the SGP40 takes 200ms to acquire values.
     // SHT4X also includes a delay of 10ms
-    delay(int(sampling_interval)*1000 - 200 - 10);
+    delay(int(sampling_interval) * 1000 - 200 - 10);
 
     // 2. Measure temperature and humidity for SGP internal compensation
     error = sht4x.measureHighPrecision(temperature, humidity);
@@ -166,12 +168,10 @@ void loop() {
         compensationRh = static_cast<uint16_t>(humidity * 65535 / 100);
     }
 
-
     // 3. Measure SGP40 signals using low power mode
     sgp40MeasureRawSignalLowPower(compensationRh, compensationT, error);
     if (error) {
-        Serial.print(
-            "SGP40 - Error trying to cquire data in low power mode: ");
+        Serial.print("SGP40 - Error trying to cquire data in low power mode: ");
         errorToString(error, errorMessage, sizeof(errorMessage));
         Serial.println(errorMessage);
         Serial.println("Fallback to use default values for humidity and "
