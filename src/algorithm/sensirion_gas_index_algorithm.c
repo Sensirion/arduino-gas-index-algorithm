@@ -381,6 +381,7 @@ static void GasIndexAlgorithm__init_instances(GasIndexAlgorithmParams* params) {
 void GasIndexAlgorithm_set_sampling_interval(GasIndexAlgorithmParams* params,
                                              float samp_int) {
     params->m_sampling_interval = samp_int;
+    GasIndexAlgorithm_reset(params);
 }
 
 void GasIndexAlgorithm_get_sampling_interval(
