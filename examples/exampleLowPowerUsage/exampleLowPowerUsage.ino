@@ -39,12 +39,13 @@
 SensirionI2CSht4x sht4x;
 SensirionI2CSgp40 sgp40;
 
-VOCGasIndexAlgorithm voc_algorithm;
 // define the sampling interval in seconds (1sec for 20% power, 10sec for 2%
 // power)
-float sampling_interval = 1.0;
+int32_t sampling_interval = 1;
 
-char errorMessage[64];
+VOCGasIndexAlgorithm voc_algorithm(sampling_interval);
+
+char errorMessage[32];
 
 void setup() {
     Serial.begin(115200);
@@ -69,8 +70,6 @@ void setup() {
         index_offset, learning_time_offset_hours, learning_time_gain_hours,
         gating_max_duration_minutes, std_initial, gain_factor);
 
-    voc_algorithm.set_sampling_interval(sampling_interval);
-
     Serial.println("\nVOC Gas Index Algorithm parameters");
     Serial.print("Index offset:\t");
     Serial.println(index_offset);
@@ -92,6 +91,7 @@ void setup() {
 void sgp40MeasureRawSignalLowPower(uint16_t compensationRh,
                                    uint16_t compensationT, uint16_t error) {
     uint16_t srawVoc = 0;
+    int32_t voc_index = 0;
     // Request a first measurement to heat up the plate (ignoring the result)
     error = sgp40.measureRawSignal(compensationRh, compensationT, srawVoc);
     if (error) {
@@ -119,21 +119,20 @@ void sgp40MeasureRawSignalLowPower(uint16_t compensationRh,
     }
 
     // Process raw signals by Gas Index Algorithm to get the VOC index values
-    int32_t voc_index = voc_algorithm.process(srawVoc);
+    voc_index = voc_algorithm.process(srawVoc);
     Serial.print("\t");
     Serial.print("VOC Index: ");
     Serial.println(voc_index);
-    //
 }
 
 void loop() {
     uint16_t error;
-    float humidity = 0;                       // %RH
-    float temperature = 0;                    // degreeC
-    uint16_t defaultCompensationRh = 0x8000;  // in ticks as defined by SGP41
-    uint16_t defaultCompensationT = 0x6666;   // in ticks as defined by SGP41
-    uint16_t compensationRh = 0;              // in ticks as defined by SGP41
-    uint16_t compensationT = 0;               // in ticks as defined by SGP41
+    float humidity = 0;     // %RH
+    float temperature = 0;  // degreeC
+    uint16_t compensationRh =
+        0x8000;  // initialized to default value in ticks as defined by SGP40
+    uint16_t compensationT =
+        0x6666;  // initialized to default value in ticks as defined by SGP40
 
     // 1. Sleep: We need the delay to match the desired sampling interval
     // In low power mode, the SGP40 takes 200ms to acquire values.
@@ -149,9 +148,7 @@ void loop() {
         errorToString(error, errorMessage, sizeof(errorMessage));
         Serial.println(errorMessage);
         Serial.println("Fallback to use default values for humidity and "
-                       "temperature compensation for SGP41");
-        compensationRh = defaultCompensationRh;
-        compensationT = defaultCompensationT;
+                       "temperature compensation for SGP40");
     } else {
         Serial.print("T:");
         Serial.print(temperature);
@@ -159,7 +156,7 @@ void loop() {
         Serial.print("RH:");
         Serial.print(humidity);
 
-        // convert temperature and humidity to ticks as defined by SGP41
+        // convert temperature and humidity to ticks as defined by SGP40
         // interface
         // NOTE: in case you read RH and T raw signals check out the
         // ticks specification in the datasheet, as they can be different for
@@ -171,12 +168,9 @@ void loop() {
     // 3. Measure SGP40 signals using low power mode
     sgp40MeasureRawSignalLowPower(compensationRh, compensationT, error);
     if (error) {
-        Serial.print("SGP40 - Error trying to cquire data in low power mode: ");
+        Serial.print(
+            "SGP40 - Error trying to acquire data in low power mode: ");
         errorToString(error, errorMessage, sizeof(errorMessage));
         Serial.println(errorMessage);
-        Serial.println("Fallback to use default values for humidity and "
-                       "temperature compensation for SGP41");
-        compensationRh = defaultCompensationRh;
-        compensationT = defaultCompensationT;
     }
 }
