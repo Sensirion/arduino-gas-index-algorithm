@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Sensirion AG
+ * Copyright (c) 2022, Sensirion AG
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -60,41 +60,18 @@ void setup() {
 
     delay(1000);  // needed on some Arduino boards in order to have Serial ready
 
-    int32_t index_offset;
-    int32_t learning_time_offset_hours;
-    int32_t learning_time_gain_hours;
-    int32_t gating_max_duration_minutes;
-    int32_t std_initial;
-    int32_t gain_factor;
-    voc_algorithm.get_tuning_parameters(
-        index_offset, learning_time_offset_hours, learning_time_gain_hours,
-        gating_max_duration_minutes, std_initial, gain_factor);
-
-    Serial.println("\nVOC Gas Index Algorithm parameters");
-    Serial.print("Index offset:\t");
-    Serial.println(index_offset);
-    Serial.print("Learning time offset hours:\t");
-    Serial.println(learning_time_offset_hours);
-    Serial.print("Learning time gain hours:\t");
-    Serial.println(learning_time_gain_hours);
-    Serial.print("Gating max duration minutes:\t");
-    Serial.println(gating_max_duration_minutes);
-    Serial.print("Std inital:\t");
-    Serial.println(std_initial);
-    Serial.print("Gain factor:\t");
-    Serial.println(gain_factor);
     Serial.print("Sampling interval (sec):\t");
     Serial.println(voc_algorithm.get_sampling_interval());
     Serial.println("");
 }
 
 void sgp40MeasureRawSignalLowPower(uint16_t compensationRh,
-                                   uint16_t compensationT, uint16_t error) {
+                                   uint16_t compensationT, uint16_t* error) {
     uint16_t srawVoc = 0;
     int32_t voc_index = 0;
     // Request a first measurement to heat up the plate (ignoring the result)
-    error = sgp40.measureRawSignal(compensationRh, compensationT, srawVoc);
-    if (error) {
+    *error = sgp40.measureRawSignal(compensationRh, compensationT, srawVoc);
+    if (*error) {
         return;
     }
 
@@ -103,8 +80,8 @@ void sgp40MeasureRawSignalLowPower(uint16_t compensationRh,
     delay(140);
 
     // Request the measurement values
-    error = sgp40.measureRawSignal(compensationRh, compensationT, srawVoc);
-    if (error) {
+    *error = sgp40.measureRawSignal(compensationRh, compensationT, srawVoc);
+    if (*error) {
         return;
     }
 
@@ -113,8 +90,8 @@ void sgp40MeasureRawSignalLowPower(uint16_t compensationRh,
     Serial.println(srawVoc);
 
     // Turn heater off
-    error = sgp40.turnHeaterOff();
-    if (error) {
+    *error = sgp40.turnHeaterOff();
+    if (*error) {
         return;
     }
 
@@ -125,10 +102,31 @@ void sgp40MeasureRawSignalLowPower(uint16_t compensationRh,
     Serial.println(voc_index);
 }
 
-void loop() {
-    uint16_t error;
+void getCompensationValuesFromSHT4x(uint16_t* compensationRh,
+                                    uint16_t* compensationT, uint16_t* error) {
     float humidity = 0;     // %RH
     float temperature = 0;  // degreeC
+    *error = sht4x.measureHighPrecision(temperature, humidity);
+    if (*error) {
+        return;
+    }
+    Serial.print("T:");
+    Serial.print(temperature);
+    Serial.print("\t");
+    Serial.print("RH:");
+    Serial.print(humidity);
+
+    // convert temperature and humidity to ticks as defined by SGP40
+    // interface
+    // NOTE: in case you read RH and T raw signals check out the
+    // ticks specification in the datasheet, as they can be different for
+    // different sensors
+    *compensationT = static_cast<uint16_t>((temperature + 45) * 65535 / 175);
+    *compensationRh = static_cast<uint16_t>(humidity * 65535 / 100);
+}
+
+void loop() {
+    uint16_t error;
     uint16_t compensationRh =
         0x8000;  // initialized to default value in ticks as defined by SGP40
     uint16_t compensationT =
@@ -140,8 +138,7 @@ void loop() {
     delay(int(sampling_interval) * 1000 - 200 - 10);
 
     // 2. Measure temperature and humidity for SGP internal compensation
-    error = sht4x.measureHighPrecision(temperature, humidity);
-
+    getCompensationValuesFromSHT4x(&compensationRh, &compensationT, &error);
     if (error) {
         Serial.print(
             "SHT4x - Error trying to execute measureHighPrecision(): ");
@@ -149,24 +146,10 @@ void loop() {
         Serial.println(errorMessage);
         Serial.println("Fallback to use default values for humidity and "
                        "temperature compensation for SGP40");
-    } else {
-        Serial.print("T:");
-        Serial.print(temperature);
-        Serial.print("\t");
-        Serial.print("RH:");
-        Serial.print(humidity);
-
-        // convert temperature and humidity to ticks as defined by SGP40
-        // interface
-        // NOTE: in case you read RH and T raw signals check out the
-        // ticks specification in the datasheet, as they can be different for
-        // different sensors
-        compensationT = static_cast<uint16_t>((temperature + 45) * 65535 / 175);
-        compensationRh = static_cast<uint16_t>(humidity * 65535 / 100);
     }
 
     // 3. Measure SGP40 signals using low power mode
-    sgp40MeasureRawSignalLowPower(compensationRh, compensationT, error);
+    sgp40MeasureRawSignalLowPower(compensationRh, compensationT, &error);
     if (error) {
         Serial.print(
             "SGP40 - Error trying to acquire data in low power mode: ");
