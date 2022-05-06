@@ -34,6 +34,10 @@ VOCGasIndexAlgorithm::VOCGasIndexAlgorithm()
     : SensirionGasIndexAlgorithm(ALGORITHM_TYPE_VOC) {
 }
 
+VOCGasIndexAlgorithm::VOCGasIndexAlgorithm(int32_t sampling_interval)
+    : SensirionGasIndexAlgorithm(ALGORITHM_TYPE_VOC, sampling_interval) {
+}
+
 void VOCGasIndexAlgorithm::get_states(int32_t& state0, int32_t& state1) {
     GasIndexAlgorithm_get_states(params, &state0, &state1);
 }

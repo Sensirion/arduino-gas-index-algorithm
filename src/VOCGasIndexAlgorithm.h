@@ -37,6 +37,7 @@
 class VOCGasIndexAlgorithm : public SensirionGasIndexAlgorithm {
   public:
     VOCGasIndexAlgorithm();
+    explicit VOCGasIndexAlgorithm(int32_t sampling_interval);
 
     /**
      * Get current algorithm states. Retrieved values can be used in
