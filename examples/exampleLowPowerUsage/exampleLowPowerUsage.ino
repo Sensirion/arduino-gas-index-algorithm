@@ -39,8 +39,9 @@
 SensirionI2CSht4x sht4x;
 SensirionI2CSgp40 sgp40;
 
-// define the sampling interval in seconds (1sec for 20% power, 10sec for 2%
-// power)
+// Sampling interval in seconds
+// This code uses a fixed heating pulse of ca. 200 ms for the measurement and
+// thus, the sampling interval defines the duty cycle
 int32_t sampling_interval = 1;
 
 VOCGasIndexAlgorithm voc_algorithm(sampling_interval);
@@ -135,7 +136,7 @@ void loop() {
     // 1. Sleep: We need the delay to match the desired sampling interval
     // In low power mode, the SGP40 takes 200ms to acquire values.
     // SHT4X also includes a delay of 10ms
-    delay(int(sampling_interval) * 1000 - 200 - 10);
+    delay(int(sampling_interval) * 1000 - 210);
 
     // 2. Measure temperature and humidity for SGP internal compensation
     getCompensationValuesFromSHT4x(&compensationRh, &compensationT, &error);
