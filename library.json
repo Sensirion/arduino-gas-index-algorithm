@@ -1,6 +1,6 @@
 {
   "name": "Sensirion Gas Index Algorithm",
-  "version": "3.2.0",
+  "version": "3.2.1",
   "description": "Library for gas index algorithm to use with Sensirion sensors. Enables you to calculate gas index from raw signal.",
   "keywords": "SensirionGasIndexAlgorithm, VOCGasIndexAlgorithm, NOxGasIndexAlgorithm, SensirionI2CSht4x, SensirionI2CSgp41, sgp41, sgp40, voc_algorithm, nox_algorithm",
   "repository": {

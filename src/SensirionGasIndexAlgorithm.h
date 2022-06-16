@@ -45,7 +45,7 @@ class SensirionGasIndexAlgorithm {
 
     explicit SensirionGasIndexAlgorithm(int32_t algorithm_type);
     explicit SensirionGasIndexAlgorithm(int32_t algorithm_type,
-                                        int32_t sampling_interval);
+                                        float sampling_interval);
     ~SensirionGasIndexAlgorithm();
 
     /**
@@ -93,7 +93,7 @@ class SensirionGasIndexAlgorithm {
     /**
      * Get the sampling interval used by the algorithm
      */
-    int32_t get_sampling_interval();
+    float get_sampling_interval();
 
     /**
      * Calculate the gas index value from the raw sensor value.

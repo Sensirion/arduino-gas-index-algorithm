@@ -37,9 +37,10 @@ SensirionGasIndexAlgorithm::SensirionGasIndexAlgorithm(int32_t algorithm_type) {
 }
 
 SensirionGasIndexAlgorithm::SensirionGasIndexAlgorithm(
-    int32_t algorithm_type, int32_t sampling_interval) {
+    int32_t algorithm_type, float sampling_interval) {
     params = new GasIndexAlgorithmParams();
-    GasIndexAlgorithm_init_ext(params, algorithm_type, sampling_interval);
+    GasIndexAlgorithm_init_with_sampling_interval(params, algorithm_type,
+                                                  sampling_interval);
 }
 
 SensirionGasIndexAlgorithm::~SensirionGasIndexAlgorithm() {
@@ -66,8 +67,8 @@ void SensirionGasIndexAlgorithm::get_tuning_parameters(
         &gain_factor);
 }
 
-int32_t SensirionGasIndexAlgorithm::get_sampling_interval() {
-    int32_t sampling_interval = 0;
+float SensirionGasIndexAlgorithm::get_sampling_interval() {
+    float sampling_interval = 0;
     GasIndexAlgorithm_get_sampling_interval(params, &sampling_interval);
     return sampling_interval;
 }

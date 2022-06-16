@@ -37,7 +37,7 @@
 class VOCGasIndexAlgorithm : public SensirionGasIndexAlgorithm {
   public:
     VOCGasIndexAlgorithm();
-    explicit VOCGasIndexAlgorithm(int32_t sampling_interval);
+    explicit VOCGasIndexAlgorithm(float sampling_interval);
 
     /**
      * Get current algorithm states. Retrieved values can be used in
@@ -48,7 +48,7 @@ class VOCGasIndexAlgorithm : public SensirionGasIndexAlgorithm {
      * @param state0    State0 to be stored (output variable)
      * @param state1    State1 to be stored (output variable)
      */
-    void get_states(int32_t& state0, int32_t& state1);
+    void get_states(float& state0, float& state1);
 
     /**
      * Set previously retrieved algorithm states to resume operation after a
@@ -60,7 +60,7 @@ class VOCGasIndexAlgorithm : public SensirionGasIndexAlgorithm {
      * @param state0    State0 to be restored
      * @param state1    State1 to be restored
      */
-    void set_states(int32_t state0, int32_t state1);
+    void set_states(float state0, float state1);
 };
 
 #endif /* VOCGASINDEXALGORITHM_H */

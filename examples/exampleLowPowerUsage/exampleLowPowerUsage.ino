@@ -42,7 +42,7 @@ SensirionI2CSgp40 sgp40;
 // Sampling interval in seconds
 // This code uses a fixed heating pulse of ca. 200 ms for the measurement and
 // thus, the sampling interval defines the duty cycle
-int32_t sampling_interval = 1;
+float sampling_interval = 1.f;
 
 VOCGasIndexAlgorithm voc_algorithm(sampling_interval);
 
