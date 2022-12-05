@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+Fix type issue on non 32-bit platforms. If `mSraw_Minimum` parameter is
+defined as int instead of explicitly as `int32_t` it can lead to an
+overflow issue causing the algorithm to the maximal index
+
 ## [3.2.0] - 2022-05-19
 
 Add low power examples and allow changing sampling interval on startup
