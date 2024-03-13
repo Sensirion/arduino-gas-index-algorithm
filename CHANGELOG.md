@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- Fixing typos in example
+
 ## [3.2.2] - 2022-12-05
 
 Fix type issue on non 32-bit platforms. If `mSraw_Minimum` parameter is
