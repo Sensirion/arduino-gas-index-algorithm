@@ -37,6 +37,12 @@
 class VOCGasIndexAlgorithm : public SensirionGasIndexAlgorithm {
   public:
     VOCGasIndexAlgorithm();
+    /**
+     * @brief Construct a new VOCGasIndexAlgorithm object
+     *
+     * @param sampling_interval Sampling interval of SRAW_VOC values.
+     * Algorithm is tested with a sampling interval of 1s (default) and 10s.
+     */
     explicit VOCGasIndexAlgorithm(float sampling_interval);
 
     /**

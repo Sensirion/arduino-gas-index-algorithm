@@ -10,8 +10,8 @@ For the VOC Index output, the software must be instanced as VOC Algorithm while 
 be instanced as NOx Algorithm. It is important to feed the raw signals to the corresponding algorithm (i.e., `SRAW_VOC` to the
 VOC Algorithm and `SRAW_NOX` to the NOx Algorithm) at a constant sampling interval which must coincide with the sampling
 interval that is used to read out the raw signals from the SGP40/41 sensor. The default sampling interval applied in the
-algorithm is 1 s. In case, a different sampling interval should be used the definition of the sampling interval in the h.file
-of the algorithm must be changed, too.
+algorithm is 1 s. If your sampling interval is different, please use the constructor variant allowing you to pass the 
+sampling interval. The VOC algorithm is tested for a sampling interval of 1s and 10s. 
 
 The algorithm calculates the VOC and NOx Index signals recursively from a single raw tick value of `SRAW_VOC` and `SRAW_NOX`,
 respectively, which are both measured by the SGP40/41 sensor at each time step, as well as internal states that are updated
