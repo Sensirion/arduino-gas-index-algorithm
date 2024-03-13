@@ -74,9 +74,9 @@ void setup() {
     Serial.println("\nVOC Gas Index Algorithm parameters");
     Serial.print("Index offset:\t");
     Serial.println(index_offset);
-    Serial.print("Learing time offset hours:\t");
+    Serial.print("Learning time offset hours:\t");
     Serial.println(learning_time_offset_hours);
-    Serial.print("Learing time gain hours:\t");
+    Serial.print("Learning time gain hours:\t");
     Serial.println(learning_time_gain_hours);
     Serial.print("Gating max duration minutes:\t");
     Serial.println(gating_max_duration_minutes);
@@ -92,7 +92,7 @@ void setup() {
     Serial.println("\nNOx Gas Index Algorithm parameters");
     Serial.print("Index offset:\t");
     Serial.println(index_offset);
-    Serial.print("Learing time offset hours:\t");
+    Serial.print("Learning time offset hours:\t");
     Serial.println(learning_time_offset_hours);
     Serial.print("Gating max duration minutes:\t");
     Serial.println(gating_max_duration_minutes);
