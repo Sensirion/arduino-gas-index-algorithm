@@ -34,10 +34,10 @@
 #include <Arduino.h>
 #include <NOxGasIndexAlgorithm.h>
 #include <SensirionI2CSgp41.h>
-#include <SensirionI2CSht4x.h>
+#include <SensirionI2cSht4x.h>
 #include <VOCGasIndexAlgorithm.h>
 
-SensirionI2CSht4x sht4x;
+SensirionI2cSht4x sht4x;
 SensirionI2CSgp41 sgp41;
 
 VOCGasIndexAlgorithm voc_algorithm;
@@ -46,7 +46,7 @@ NOxGasIndexAlgorithm nox_algorithm;
 // time in seconds needed for NOx conditioning
 uint16_t conditioning_s = 10;
 
-char errorMessage[64];
+char errorMessage[256];
 
 void setup() {
     Serial.begin(115200);
@@ -56,7 +56,7 @@ void setup() {
 
     Wire.begin();
 
-    sht4x.begin(Wire);
+    sht4x.begin(Wire, SHT40_I2C_ADDR_44);
     sgp41.begin(Wire);
 
     delay(1000);  // needed on some Arduino boards in order to have Serial ready

@@ -33,10 +33,10 @@
 
 #include <Arduino.h>
 #include <SensirionI2CSgp40.h>
-#include <SensirionI2CSht4x.h>
+#include <SensirionI2cSht4x.h>
 #include <VOCGasIndexAlgorithm.h>
 
-SensirionI2CSht4x sht4x;
+SensirionI2cSht4x sht4x;
 SensirionI2CSgp40 sgp40;
 
 // Sampling interval in seconds
@@ -46,7 +46,7 @@ float sampling_interval = 1.f;
 
 VOCGasIndexAlgorithm voc_algorithm(sampling_interval);
 
-char errorMessage[32];
+char errorMessage[256];
 
 void setup() {
     Serial.begin(115200);
@@ -56,7 +56,7 @@ void setup() {
 
     Wire.begin();
 
-    sht4x.begin(Wire);
+    sht4x.begin(Wire, SHT40_I2C_ADDR_44);
     sgp40.begin(Wire);
 
     delay(1000);  // needed on some Arduino boards in order to have Serial ready
